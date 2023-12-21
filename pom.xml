@@ -11,7 +11,8 @@
     <modules>
         <module>authorization-server</module>
         <module>gateway-server</module>
-        <module>resourceServer</module>
+        <module>resource-server</module>
+        <module>eureka-server</module>
     </modules>
 
     <properties>

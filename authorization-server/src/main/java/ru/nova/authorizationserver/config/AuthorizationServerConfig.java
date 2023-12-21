@@ -31,37 +31,35 @@ public class AuthorizationServerConfig {
 
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
-    public SecurityFilterChain  authServerSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain authServerSecurityFilterChain(HttpSecurity http) throws Exception {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-        return http
-                .formLogin(Customizer.withDefaults())
-                .build();
+        return http.formLogin(Customizer.withDefaults()).build();
     }
 
     @Bean
-    public RegisteredClientRepository registeredClientRepository(){
-        RegisteredClient registeredClient = RegisteredClient
-                .withId(UUID.randomUUID().toString())
+    public RegisteredClientRepository registeredClientRepository() {
+        RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("gateway")
                 .clientSecret("{noop}secret")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/gateway")
+                .redirectUri("http://127.0.0.1:8765/login/oauth2/code/gateway")
                 .scope(OidcScopes.OPENID)
                 .scope("resource.read")
                 .build();
+
         return new InMemoryRegisteredClientRepository(registeredClient);
     }
 
     @Bean
-    public JWKSource<SecurityContext> jwkSource(){
+    public JWKSource<SecurityContext> jwkSource() {
         RSAKey rsaKey = generateRsa();
         JWKSet jwkSet = new JWKSet(rsaKey);
-        return ((jwkSelector, securityContext) -> jwkSelector.select(jwkSet));
+        return (jwkSelector, securityContext) -> jwkSelector.select(jwkSet);
     }
 
-    private static RSAKey generateRsa(){
+    private static RSAKey generateRsa() {
         KeyPair keyPair = generateRsaKey();
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
@@ -71,21 +69,21 @@ public class AuthorizationServerConfig {
                 .build();
     }
 
-    private static KeyPair generateRsaKey(){
+    private static KeyPair generateRsaKey() {
         KeyPair keyPair;
         try {
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
             keyPairGenerator.initialize(2048);
             keyPair = keyPairGenerator.generateKeyPair();
-        }catch (Exception ex){
+        } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }
         return keyPair;
     }
 
     @Bean
-    public ProviderSettings providerSettings(){
-        return  ProviderSettings.builder()
+    public ProviderSettings providerSettings() {
+        return ProviderSettings.builder()
                 .issuer("http://localhost:9000")
                 .build();
     }
